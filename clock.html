@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            margin: 0; padding: 0;
+            background: transparent;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .clock {
+            width: 200px;
+            height: 200px;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: relative;
+            padding: 10px;
+        }
+
+        .clock div {
+            position: absolute;
+            background: white;
+            transform-origin: bottom;
+            bottom: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+        }
+
+        .hour { width: 4px; height: 50px; }
+        .minute { width: 3px; height: 70px; }
+        .second { width: 1px; height: 85px; background: #ff3b30 !important; } /* Lancetta secondi rossa per stile */
+
+        .center-dot {
+            width: 8px; height: 8px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+
+<div class="clock">
+    <div id="hour" class="hour"></div>
+    <div id="minute" class="minute"></div>
+    <div id="second" class="second"></div>
+    <div class="center-dot"></div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const s = now.getSeconds();
+        const m = now.getMinutes();
+        const h = now.getHours();
+
+        document.getElementById('second').style.transform = `translateX(-50%) rotate(${s * 6}deg)`;
+        document.getElementById('minute').style.transform = `translateX(-50%) rotate(${m * 6 + s * 0.1}deg)`;
+        document.getElementById('hour').style.transform = `translateX(-50%) rotate(${h * 30 + m * 0.5}deg)`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+</body>
+</html>
