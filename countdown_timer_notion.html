@@ -1,134 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Montserrat:900">
-    <title>Document</title>
     <style>
+        /* Setup pagina: trasparente e centrata */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            background-color: transparent; 
+            height: 100vh;
+            display: flex;
+            justify-content: center; /* Centra orizzontalmente */
+            align-items: center;     /* Centra verticalmente */
+            overflow: hidden;
+            color: white;
+        }
 
-body{
-    background-color: transparent;
-}
-  
-#timer {
-  color: #eeeeee;
-  text-align: center;
-  text-transform: uppercase;
-  font-family: 'Lato', sans-serif;
-  font-size: .7em;
-  letter-spacing: 5px;
-}
+        #timer {
+            font-family: 'Lato', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.7em;
+            
+            /* Griglia adattiva */
+            display: grid;
+            grid-template-columns: repeat(4, auto); /* 4 colonne su desktop */
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
 
-.days, .hours, .minutes, .seconds {
-  display: inline-block;
-  padding: 20px;
-  width: 100px;
-  border-radius: 5px;
-}
+        /* Forza il 2x2 su mobile o se il blocco è stretto */
+        @media (max-width: 500px) {
+            #timer {
+                grid-template-columns: repeat(2, auto);
+                gap: 20px 40px;
+            }
+        }
 
-.days {
-  background: #EF2F3C;
-}
+        .unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: transparent; /* Completamente trasparente */
+        }
 
-.hours {
-  background: #eeeeee;
-  color: #183059;
-}
+        .numbers {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em; /* Grandezza numero */
+            line-height: 1;
+            margin-bottom: 5px;
+        }
 
-.minutes {
-  background: #276FBF;
-}
-
-.seconds {
-  background: #F0A202;
-}
-
-.numbers {
-  font-family: 'Montserrat', sans-serif;
-  color:  #183059;
-  font-size: 4em;
-  text-align: center;
-}
-
-.white {
-  position: absolute;
-  background:  #eeeeee;
-  height: 85px;
-  width: 75px;
-  left: 30%;
-  top: 2%;
-}
-
-.red {
-  position: absolute;
-  background:  #EF2F3C;
-  left: 18%;
-  top: 9%;
-  height: 65px;
-  width: 70px;
- 
-}
-
-.blue {
-  position: absolute;
-  background:  #276FBF;
-  height: 80px;
-  width: 80px;
-  left: 60%;
-  top: 5%;
-
-
-}
-
-
+        /* Ottimizzazione per schermi piccolissimi */
+        @media (max-width: 350px) {
+            .numbers { font-size: 2.5em; }
+            #timer { font-size: 0.6em; }
+        }
     </style>
 </head>
 <body>
     
 <div id="timer">
-
-    <div class="days"> 
-        <div id="days" class="numbers "> </div>days</div> 
-      <div class="hours"> 
-        <div  id="hours" class="numbers"> </div>hours</div> 
-      <div class="minutes"> 
-        <div  id="minutes" class="numbers"> </div>minutes</div> 
-      <div   class="seconds"> 
-        <div id="seconds" class="numbers"> </div>seconds</div> 
-      </div>
-
+    <div class="unit"> 
+        <div id="days" class="numbers">00</div>giorni
+    </div> 
+    <div class="unit"> 
+        <div id="hours" class="numbers">00</div>ore
+    </div> 
+    <div class="unit"> 
+        <div id="minutes" class="numbers">00</div>minuti
+    </div> 
+    <div class="unit"> 
+        <div id="seconds" class="numbers">00</div>secondi
+    </div> 
 </div>
 
-</body>
 <script>
-    const year = new Date().getFullYear();
-const myDate = new Date('Feb 26, 2026 08:30:00');
-console.log(myDate);
+    const myDate = new Date('Feb 26, 2026 08:30:00').getTime();
 
-// countdown
-let timer = setInterval(function() {
+    function updateTimer() {
+        const today = new Date().getTime();
+        const diff = myDate - today;
 
-  // get today's date
-  const today = new Date().getTime();
+        if (diff <= 0) {
+            document.getElementById("timer").innerHTML = "<div style='grid-column: 1/5; font-size: 2em;'>BUON VIAGGIO! ✈️</div>";
+            return;
+        }
 
-  // get the difference
-  const diff = myDate - today;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  // math
-  let days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById("days").innerText = days;
+        document.getElementById("hours").innerText = hours;
+        document.getElementById("minutes").innerText = minutes;
+        document.getElementById("seconds").innerText = seconds;
+    }
 
-  // display
-  document.getElementById("days").innerHTML=days
-  document.getElementById("hours").innerHTML=hours
-  document.getElementById("minutes").innerHTML=minutes
-  document.getElementById("seconds").innerHTML=seconds
-
-
-
-}, 1);
+    setInterval(updateTimer, 1000);
+    updateTimer();
 </script>
+</body>
 </html>
