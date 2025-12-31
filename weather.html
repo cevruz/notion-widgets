@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700">
+    <style>
+        body, html { 
+            margin: 0; padding: 0;
+            background: transparent; 
+            color: white; 
+            font-family: 'Lato', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            overflow-x: hidden;
+            text-align: center;
+        }
+        .weather-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+        }
+        /* Meteo Attuale */
+        .current { margin-bottom: 10px; }
+        .city { font-size: 0.8em; text-transform: uppercase; letter-spacing: 3px; opacity: 0.7; }
+        .temp-main { font-size: 4em; font-weight: 700; line-height: 1; margin: 5px 0; }
+        .desc-main { font-size: 0.9em; text-transform: uppercase; opacity: 0.9; }
+
+        /* Previsioni 5 Giorni */
+        .forecast {
+            display: flex;
+            gap: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 15px;
+        }
+        .forecast-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75em;
+            min-width: 50px;
+        }
+        .day-name { font-weight: bold; opacity: 0.6; margin-bottom: 5px; text-transform: uppercase; }
+        .day-icon { font-size: 1.5em; margin: 5px 0; }
+        .day-temp { opacity: 0.9; }
+
+        @media (max-width: 500px) {
+            .forecast { gap: 8px; }
+            .forecast-day { min-width: 40px; font-size: 0.65em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="weather-card">
+    <div class="current">
+        <div id="city" class="city">Venezia</div>
+        <div id="temp" class="temp-main">--°</div>
+        <div id="desc" class="desc-main">caricamento...</div>
+    </div>
+
+    <div id="forecast" class="forecast">
+        </div>
+</div>
+
+<script>
+    const weatherMapping = {
+        0: {t: "Sereno", i: "☀️"},
+        1: {t: "Quasi Sereno", i: "🌤️"}, 2: {t: "Parz. Nuvoloso", i: "⛅"}, 3: {t: "Coperto", i: "☁️"},
+        45: {t: "Nebbia", i: "🌫️"}, 48: {t: "Nebbia", i: "🌫️"},
+        51: {t: "Pioggerellina", i: "🌦️"}, 61: {t: "Pioggia", i: "🌧️"}, 63: {t: "Pioggia", i: "🌧️"},
+        71: {t: "Neve", i: "❄️"}, 95: {t: "Temporale", i: "⛈️"}
+    };
+
+    async function getWeather() {
+        const lat = 45.4371;
+        const lon = 12.3327;
+        
+        try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=Europe%2FRome`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Aggiorna Meteo Attuale
+            const current = data.current_weather;
+            document.getElementById('temp').innerText = Math.round(current.temperature) + "°C";
+            document.getElementById('desc').innerText = (weatherMapping[current.weathercode] || {t: "Variabile"}).t;
+
+            // Aggiorna Previsioni 5 Giorni
+            const forecastContainer = document.getElementById('forecast');
+            forecastContainer.innerHTML = ""; // Pulisce
+            
+            const days = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
+            
+            for (let i = 1; i <= 5; i++) {
+                const date = new Date(data.daily.time[i]);
+                const dayName = days[date.getDay()];
+                const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+                const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+                const code = data.daily.weathercode[i];
+                const icon = (weatherMapping[code] || {i: "⛅"}).i;
+
+                forecastContainer.innerHTML += `
+                    <div class="forecast-day">
+                        <div class="day-name">${dayName}</div>
+                        <div class="day-icon">${icon}</div>
+                        <div class="day-temp">${maxTemp}° / ${minTemp}°</div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            document.getElementById('desc').innerText = "Errore connessione";
+        }
+    }
+
+    getWeather();
+    setInterval(getWeather, 600000);
+</script>
+</body>
+</html>
