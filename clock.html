@@ -1,74 +1,66 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body, html {
-            margin: 0; padding: 0;
-            background: transparent;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .clock {
-            width: 200px;
-            height: 200px;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: relative;
-            padding: 10px;
-        }
-
-        .clock div {
-            position: absolute;
-            background: white;
-            transform-origin: bottom;
-            bottom: 50%;
-            left: 50%;
-            transform: translateX(-50%);
+        body { background: transparent; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .clock { width: 180px; height: 180px; border: 2px solid white; border-radius: 50%; position: relative; }
+        
+        /* Tacche ore principali */
+        .clock::after, .clock::before { content: ''; position: absolute; background: rgba(255,255,255,0.4); border-radius: 2px; }
+        .clock::after { width: 2px; height: 10px; left: 50%; transform: translateX(-50%); top: 5px; box-shadow: 0 160px rgba(255,255,255,0.4); }
+        .clock::before { width: 10px; height: 2px; top: 50%; transform: translateY(-50%); left: 5px; box-shadow: 160px 0 rgba(255,255,255,0.4); }
+        
+        /* Sistema lancette migliorato */
+        .hand { 
+            position: absolute; 
+            background: white; 
+            bottom: 50%; /* Parte dal centro esatto */
+            left: 50%; 
+            transform-origin: center bottom; /* Ruota partendo dalla base della lancetta */
             border-radius: 10px;
+            /* Rimuoviamo translateX da qui per gestirlo nel JS */
         }
-
-        .hour { width: 4px; height: 50px; }
-        .minute { width: 3px; height: 70px; }
-        .second { width: 1px; height: 85px; background: #ff3b30 !important; } /* Lancetta secondi rossa per stile */
-
-        .center-dot {
-            width: 8px; height: 8px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+        
+        .hour { width: 4px; height: 45px; margin-left: -2px; } /* margin-left è metà della larghezza per centrare */
+        .minute { width: 3px; height: 65px; opacity: 0.8; margin-left: -1.5px; }
+        .second { width: 2px; height: 75px; background: #EF2F3C; margin-left: -1px; }
+        
+        .dot { 
+            width: 8px; height: 8px; background: white; 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            border-radius: 50%; 
+            z-index: 10; /* Sopra le lancette */
         }
     </style>
 </head>
 <body>
+    <div class="clock">
+        <div id="h" class="hand hour"></div>
+        <div id="m" class="hand minute"></div>
+        <div id="s" class="hand second"></div>
+        <div class="dot"></div>
+    </div>
+    <script>
+        function updateClock() {
+            const d = new Date();
+            const hr = d.getHours();
+            const min = d.getMinutes();
+            const sec = d.getSeconds();
+            
+            // Calcolo rotazione
+            const hrReq = (hr * 30) + (min * 0.5);
+            const minReq = min * 6;
+            const secReq = sec * 6;
 
-<div class="clock">
-    <div id="hour" class="hour"></div>
-    <div id="minute" class="minute"></div>
-    <div id="second" class="second"></div>
-    <div class="center-dot"></div>
-</div>
-
-<script>
-    function updateClock() {
-        const now = new Date();
-        const s = now.getSeconds();
-        const m = now.getMinutes();
-        const h = now.getHours();
-
-        document.getElementById('second').style.transform = `translateX(-50%) rotate(${s * 6}deg)`;
-        document.getElementById('minute').style.transform = `translateX(-50%) rotate(${m * 6 + s * 0.1}deg)`;
-        document.getElementById('hour').style.transform = `translateX(-50%) rotate(${h * 30 + m * 0.5}deg)`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-</script>
+            // Applichiamo la rotazione (il margin-left nel CSS si occupa del centraggio orizzontale)
+            document.getElementById('h').style.transform = `rotate(${hrReq}deg)`;
+            document.getElementById('m').style.transform = `rotate(${minReq}deg)`;
+            document.getElementById('s').style.transform = `rotate(${secReq}deg)`;
+        }
+        
+        setInterval(updateClock, 1000);
+        updateClock(); // Esegui subito all'avvio
+    </script>
 </body>
 </html>
